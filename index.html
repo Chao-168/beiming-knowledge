@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北冥知识库</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* 统计卡片 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px;
+            margin-top: -20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-card .num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* 搜索栏 */
+        .search-bar {
+            padding: 0 16px 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background: var(--card-bg);
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* 分类标签 */
+        .categories {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tag {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tag.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* 笔记列表 */
+        .notes-list {
+            padding: 0 16px 100px;
+        }
+
+        .note-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .note-card:active {
+            transform: scale(0.98);
+        }
+
+        .note-card .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .note-card .title {
+            font-weight: 600;
+            font-size: 1rem;
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .note-card .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .badge-tool { background: #dbeafe; color: #1d4ed8; }
+        .badge-book { background: #fce7f3; color: #be185d; }
+        .badge-idea { background: #d1fae5; color: #047857; }
+        .badge-other { background: #fef3c7; color: #b45309; }
+
+        .note-card .content {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-card .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .note-card .tags {
+            display: flex;
+            gap: 6px;
+        }
+
+        .note-card .tag {
+            padding: 2px 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item .icon {
+            font-size: 1.5rem;
+        }
+
+        /* 浮动添加按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 2rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            cursor: pointer;
+            z-index: 99;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* 设置页面 */
+        .settings-section {
+            padding: 16px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .settings-item:active {
+            background: var(--bg);
+        }
+
+        .settings-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-item .icon {
+            font-size: 1.5rem;
+        }
+
+        .toggle {
+            width: 50px;
+            height: 28px;
+            background: var(--border);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle.active {
+            background: var(--primary);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+
+        /* 详情页 */
+        .detail-header {
+            padding: 20px;
+        }
+
+        .detail-content {
+            padding: 0 20px 100px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .detail-actions .btn {
+            flex: 1;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: var(--text);
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 首页 -->
+    <div id="homePage">
+        <div class="header">
+            <h1>📚 北冥知识库</h1>
+            <p>积累智慧，洞见未来</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num" id="totalCount">0</div>
+                <div class="label">总笔记</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="toolCount">0</div>
+                <div class="label">工具类</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="bookCount">0</div>
+                <div class="label">读书笔记</div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 搜索笔记标题或内容...">
+        </div>
+
+        <div class="categories" id="categories">
+            <div class="category-tag active" data-category="all">全部</div>
+            <div class="category-tag" data-category="tool">🛠️ 工具</div>
+            <div class="category-tag" data-category="book">📖 读书</div>
+            <div class="category-tag" data-category="idea">💡 想法</div>
+            <div class="category-tag" data-category="other">📦 其他</div>
+        </div>
+
+        <div class="notes-list" id="notesList">
+            <!-- 笔记卡片将动态插入 -->
+        </div>
+
+        <div class="empty-state hidden" id="emptyState">
+            <div class="icon">📝</div>
+            <p>还没有笔记</p>
+            <p>点击下方 + 按钮添加第一条笔记</p>
+        </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <div id="settingsPage" class="hidden">
+        <div class="header">
+            <h1>⚙️ 设置</h1>
+            <p>管理你的知识库</p>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-item" onclick="exportData()">
+                <div class="left">
+                    <span class="icon">📤</span>
+                    <span>导出数据</span>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="settings-item" onclick="document.getElementById('importFile').click()">
+                <div class="left">
+                    <span class="icon">📥</span>
+                    <span>导入数据</span>
+                </div>
+                <span>→</span>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+
+            <div class="settings-item" onclick="clearAllData()">
+                <div class="left">
+                    <span class="icon">🗑️</span>
+                    <span>清空数据</span>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="settings-item">
+                <div class="left">
+                    <span class="icon">🌙</span>
+                    <span>深色模式</span>
+                </div>
+                <div class="toggle" id="darkModeToggle" onclick="toggleDarkMode()"></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3 style="margin-bottom: 12px; color: var(--text-secondary);">使用说明</h3>
+            <div style="background: var(--card-bg); padding: 16px; border-radius: var(--radius); font-size: 0.9rem; color: var(--text-secondary);">
+                <p style="margin-bottom: 8px;">📱 <strong>添加笔记：</strong>点击右下角 + 按钮</p>
+                <p style="margin-bottom: 8px;">🏷️ <strong>分类标签：</strong>工具/读书/想法/其他</p>
+                <p style="margin-bottom: 8px;">🔍 <strong>搜索：</strong>支持标题和内容搜索</p>
+                <p style="margin-bottom: 8px;">💾 <strong>自动保存：</strong>数据保存在本地</p>
+                <p>📤 <strong>备份：</strong>定期导出JSON文件</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.8rem;">
+            <p>北冥知识库 v1.0</p>
+            <p style="margin-top: 4px;">让知识触手可及</p>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-page="home" onclick="switchPage('home')">
+            <span class="icon">🏠</span>
+            <span>首页</span>
+        </div>
+        <div class="nav-item" data-page="settings" onclick="switchPage('settings')">
+            <span class="icon">⚙️</span>
+            <span>设置</span>
+        </div>
+    </div>
+
+    <!-- 浮动添加按钮 -->
+    <button class="fab" onclick="openAddModal()">+</button>
+
+    <!-- 添加/编辑笔记模态框 -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">📝 添加笔记</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+
+            <form id="noteForm">
+                <input type="hidden" id="noteId">
+
+                <div class="form-group">
+                    <label>标题 *</label>
+                    <input type="text" id="noteTitle" placeholder="输入笔记标题" required>
+                </div>
+
+                <div class="form-group">
+                    <label>分类 *</label>
+                    <select id="noteCategory" required>
+                        <option value="tool">🛠️ 工具使用</option>
+                        <option value="book">📖 读书笔记</option>
+                        <option value="idea">💡 想法心得</option>
+                        <option value="other">📦 其他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" id="noteTags" placeholder="用逗号分隔多个标签，如: AI,效率,工具">
+                </div>
+
+                <div class="form-group">
+                    <label>内容 *</label>
+                    <textarea id="noteContent" placeholder="输入笔记内容..." required></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 笔记详情模态框 -->
+    <div class="modal" id="detailModal">
+        <div style="background: var(--card-bg); width: 100%; height: 100%; overflow-y: auto;">
+            <div class="detail-header">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <span class="badge" id="detailBadge"></span>
+                        <h1 id="detailTitle" style="margin-top: 12px; font-size: 1.3rem;"></h1>
+                        <p id="detailDate" style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;"></p>
+                    </div>
+                </div>
+                <div id="detailTags" style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+            <div class="detail-content" id="detailContent"></div>
+            <div class="detail-actions">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+                <button class="btn btn-primary" onclick="editCurrentNote()">编辑</button>
+                <button class="btn btn-danger" onclick="deleteCurrentNote()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 数据存储
+        let notes = [];
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let currentNoteId = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotes();
+            renderNotes();
+            updateStats();
+            setupEventListeners();
+            checkDarkMode();
+        });
+
+        // 加载笔记
+        function loadNotes() {
+            const stored = localStorage.getItem('beiming_notes');
+            if (stored) {
+                notes = JSON.parse(stored);
+            }
+        }
+
+        // 保存笔记
+        function saveNotes() {
+            localStorage.setItem('beiming_notes', JSON.stringify(notes));
+            updateStats();
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalCount').textContent = notes.length;
+            document.getElementById('toolCount').textContent = notes.filter(n => n.category === 'tool').length;
+            document.getElementById('bookCount').textContent = notes.filter(n => n.category === 'book').length;
+        }
+
+        // 渲染笔记列表
+        function renderNotes() {
+            const list = document.getElementById('notesList');
+            const emptyState = document.getElementById('emptyState');
+
+            let filtered = notes;
+
+            // 分类筛选
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(n => n.category === currentCategory);
+            }
+
+            // 搜索过滤
+            if (currentSearch) {
+                const search = currentSearch.toLowerCase();
+                filtered = filtered.filter(n =>
+                    n.title.toLowerCase().includes(search) ||
+                    n.content.toLowerCase().includes(search)
+                );
+            }
+
+            // 按时间倒序
+            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            if (filtered.length === 0) {
+                list.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                list.innerHTML = filtered.map(note => `
+                    <div class="note-card" onclick="openDetail('${note.id}')">
+                        <div class="header-row">
+                            <div class="title">${escapeHtml(note.title)}</div>
+                            <span class="badge badge-${note.category}">${getCategoryName(note.category)}</span>
+                        </div>
+                        <div class="content">${escapeHtml(note.content)}</div>
+                        <div class="footer">
+                            <div class="tags">
+                                ${note.tags.map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join('')}
+                            </div>
+                            <span>${formatDate(note.createdAt)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'tool': '🛠️ 工具',
+                'book': '📖 读书',
+                'idea': '💡 想法',
+                'other': '📦 其他'
+            };
+            return names[category] || category;
+        }
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+
+            return `${date.getMonth() + 1}/${date.getDate()}`;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 搜索
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                renderNotes();
+            });
+
+            // 分类筛选
+            document.querySelectorAll('.category-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+                    currentCategory = tag.dataset.category;
+                    renderNotes();
+                });
+            });
+
+            // 表单提交
+            document.getElementById('noteForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveNote();
+            });
+        }
+
+        // 打开添加模态框
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '📝 添加笔记';
+            document.getElementById('noteId').value = '';
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteCategory').value = 'tool';
+            document.getElementById('noteTags').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteModal').classList.add('show');
+        }
+
+        // 打开编辑模态框
+        function openEditModal(note) {
+            document.getElementById('modalTitle').textContent = '✏️ 编辑笔记';
+            document.getElementById('noteId').value = note.id;
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteCategory').value = note.category;
+            document.getElementById('noteTags').value = note.tags.join(', ');
+            document.getElementById('noteContent').value = note.content;
+            document.getElementById('noteModal').classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('noteModal').classList.remove('show');
+        }
+
+        // 保存笔记
+        function saveNote() {
+            const id = document.getElementById('noteId').value;
+            const title = document.getElementById('noteTitle').value.trim();
+            const category = document.getElementById('noteCategory').value;
+            const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(t => t);
+            const content = document.getElementById('noteContent').value.trim();
+
+            if (!title || !content) {
+                showToast('请填写标题和内容');
+                return;
+            }
+
+            if (id) {
+                // 编辑
+                const index = notes.findIndex(n => n.id === id);
+                if (index !== -1) {
+                    notes[index] = {
+                        ...notes[index],
+                        title,
+                        category,
+                        tags,
+                        content,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('笔记已更新');
+                }
+            } else {
+                // 新增
+                notes.unshift({
+                    id: Date.now().toString(),
+                    title,
+                    category,
+                    tags,
+                    content,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+                showToast('笔记已添加');
+            }
+
+            saveNotes();
+            renderNotes();
+            closeModal();
+        }
+
+        // 打开详情
+        function openDetail(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            currentNoteId = id;
+
+            document.getElementById('detailBadge').className = `badge badge-${note.category}`;
+            document.getElementById('detailBadge').textContent = getCategoryName(note.category);
+            document.getElementById('detailTitle').textContent = note.title;
+            document.getElementById('detailDate').textContent = `创建于 ${new Date(note.createdAt).toLocaleDateString('zh-CN')}`;
+            document.getElementById('detailContent').textContent = note.content;
+
+            const tagsHtml = note.tags.map(tag =>
+                `<span class="tag">#${escapeHtml(tag)}</span>`
+            ).join('');
+            document.getElementById('detailTags').innerHTML = tagsHtml;
+
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // 关闭详情
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('show');
+            currentNoteId = null;
+        }
+
+        // 编辑当前笔记
+        function editCurrentNote() {
+            const note = notes.find(n => n.id === currentNoteId);
+            if (note) {
+                closeDetailModal();
+                setTimeout(() => openEditModal(note), 300);
+            }
+        }
+
+        // 删除当前笔记
+        function deleteCurrentNote() {
+            if (confirm('确定要删除这条笔记吗？')) {
+                notes = notes.filter(n => n.id !== currentNoteId);
+                saveNotes();
+                renderNotes();
+                closeDetailModal();
+                showToast('笔记已删除');
+            }
+        }
+
+        // 页面切换
+        function switchPage(page) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.page === page);
+            });
+
+            document.getElementById('homePage').classList.toggle('hidden', page !== 'home');
+            document.getElementById('settingsPage').classList.toggle('hidden', page !== 'settings');
+        }
+
+        // 导出数据
+        function exportData() {
+            const data = JSON.stringify(notes, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `北冥知识库_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('数据已导出');
+        }
+
+        // 导入数据
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        if (confirm(`确定要导入 ${imported.length} 条笔记吗？将合并到现有数据中。`)) {
+                            notes = [...imported, ...notes];
+                            saveNotes();
+                            renderNotes();
+                            showToast('数据已导入');
+                        }
+                    } else {
+                        showToast('文件格式不正确');
+                    }
+                } catch (err) {
+                    showToast('导入失败：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // 清空数据
+        function clearAllData() {
+            if (confirm('确定要清空所有笔记吗？此操作不可恢复！')) {
+                if (confirm('再次确认：所有笔记将被永久删除！')) {
+                    notes = [];
+                    saveNotes();
+                    renderNotes();
+                    showToast('数据已清空');
+                }
+            }
+        }
+
+        // 深色模式
+        function toggleDarkMode() {
+            const toggle = document.getElementById('darkModeToggle');
+            toggle.classList.toggle('active');
+            const isDark = toggle.classList.contains('active');
+            localStorage.setItem('darkMode', isDark);
+            applyDarkMode(isDark);
+        }
+
+        function checkDarkMode() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.getElementById('darkModeToggle').classList.add('active');
+                applyDarkMode(true);
+            }
+        }
+
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.style.setProperty('--bg', '#1a1a2e');
+                document.documentElement.style.setProperty('--card-bg', '#16213e');
+                document.documentElement.style.setProperty('--text', '#eaeaea');
+                document.documentElement.style.setProperty('--text-secondary', '#a0a0a0');
+                document.documentElement.style.setProperty('--border', '#2a2a4a');
+            } else {
+                document.documentElement.style.setProperty('--bg', '#f8fafc');
+                document.documentElement.style.setProperty('--card-bg', '#ffffff');
+                document.documentElement.style.setProperty('--text', '#1e293b');
+                document.documentElement.style.setProperty('--text-secondary', '#64748b');
+                document.documentElement.style.setProperty('--border', '#e2e8f0');
+            }
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>
